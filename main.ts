@@ -1,25 +1,21 @@
-// SOLMAR CITY — make.fun gta6-01 entrypoint (Node 22, no build, no install).
-// Copies game/ and screenshots/ next to this file into the output dir, then
-// writes /output/dossier.json via the kit's buildDossier (vendor copy).
-import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+// SOLMAR CITY — make.fun gta6-01 entrypoint.
+// Copies game/ and screenshots/ into the output dir, then writes dossier.json
+// with the bounty scorer's own buildDossier (vendor/makefun-game.ts).
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
 
-const here = dirname(fileURLToPath(import.meta.url));
+const root = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-// Pre-flight: the entry is game/ + screenshots/ next to this file.
-if (!existsSync(join(here, 'game', 'index.html'))) {
-  throw new Error('game/index.html missing next to main.ts — nothing to hand in');
-}
-if (readdirSync(join(here, 'screenshots')).filter((f) => /\.(png|jpe?g)$/i.test(f)).length === 0) {
-  throw new Error('screenshots/ holds no image — the dossier needs 3–4 renders');
-}
-
 mkdirSync(out, { recursive: true });
-cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
-cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
+const gameDir = join(root, 'game');
+const shotsDir = join(root, 'screenshots');
+if (!existsSync(gameDir)) throw new Error(`game/ not found next to main.ts (looked in ${root})`);
+if (!existsSync(shotsDir)) throw new Error(`screenshots/ not found next to main.ts (looked in ${root})`);
+cpSync(gameDir, join(out, 'game'), { recursive: true });
+cpSync(shotsDir, join(out, 'screenshots'), { recursive: true });
 
 const dossier = buildDossier(out, {
   text_max_bytes: 163840,
@@ -28,7 +24,10 @@ const dossier = buildDossier(out, {
   game_max_bytes: 50331648,
   game_path_max_bytes: 1000,
 });
-
-writeFileSync(join(out, 'dossier.json'), dossier);
-const shots = readdirSync(join(out, 'screenshots')).filter((f) => /\.(png|jpe?g)$/i.test(f));
-console.log(`SOLMAR CITY dossier written: ${dossier.length} bytes -> ${join(out, 'dossier.json')} (${shots.length} screenshots)`);
+const dossierPath = join(out, 'dossier.json');
+writeFileSync(dossierPath, dossier);
+// Validasi balik: dossier harus JSON valid dengan skema + gambar yang benar.
+const parsed = JSON.parse(readFileSync(dossierPath, 'utf8'));
+if (parsed.schema !== 'makefun/dossier/v1') throw new Error(`dossier schema unexpected: ${parsed.schema}`);
+if (!Array.isArray(parsed.images) || parsed.images.length === 0) throw new Error('dossier holds no screenshots');
+console.log(`SOLMAR CITY dossier written to ${dossierPath} (${dossier.length} bytes, ${parsed.images.length} screenshots, text ${parsed.text.length} bytes)`);

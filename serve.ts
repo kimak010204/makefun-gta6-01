@@ -1,12 +1,13 @@
-// Minimal static server for SOLMAR CITY: serves game/ on http://localhost:8080.
-// No dependencies; run with `node serve.ts` from the repo root.
+// SOLMAR CITY — tiny static server for local play.
+// Serves game/ at the root: open http://localhost:8080
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { extname, join, normalize } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import { extname, join, normalize, resolve } from 'node:path';
 
-const root = join(fileURLToPath(new URL('.', import.meta.url)), 'game');
-const types = {
+const root = new URL('.', import.meta.url).pathname;
+const PORT = Number(process.env.PORT ?? 8080);
+
+const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8',
@@ -15,25 +16,31 @@ const types = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
 };
 
-const server = createServer(async (req, res) => {
-  try {
-    const url = new URL(req.url ?? '/', 'http://localhost');
-    let path = url.pathname === '/' ? '/index.html' : decodeURIComponent(url.pathname);
-    const file = join(root, normalize(path).replace(/^(\.\.[/\\])+/, ''));
-    if (!file.startsWith(root)) {
-      res.writeHead(403);
-      res.end('forbidden');
+const server = createServer((req, res) => {
+  const urlPath = decodeURIComponent((req.url ?? '/').split('?')[0] ?? '/');
+  // Map the root to game/index.html; everything else resolves under game/ first,
+  // then under the repo root (README, screenshots).
+  const candidates = [
+    join(root, 'game', urlPath === '/' ? 'index.html' : urlPath),
+    join(root, normalize(urlPath).replace(/^(\.\.[/\\])+/, '')),
+  ];
+  for (const file of candidates) {
+    const abs = resolve(file);
+    const base = resolve(root);
+    if (!abs.startsWith(base)) continue;
+    if (existsSync(abs) && statSync(abs).isFile()) {
+      res.writeHead(200, { 'content-type': MIME[extname(abs)] ?? 'application/octet-stream' });
+      res.end(readFileSync(abs));
       return;
     }
-    const data = await readFile(file);
-    res.writeHead(200, { 'content-type': types[extname(file)] ?? 'application/octet-stream' });
-    res.end(data);
-  } catch {
-    res.writeHead(404);
-    res.end('not found');
   }
+  res.writeHead(404, { 'content-type': 'text/plain' });
+  res.end('not found');
 });
 
-server.listen(8080, () => console.log('SOLMAR CITY at http://localhost:8080'));
+server.listen(PORT, () => {
+  console.log(`SOLMAR CITY at http://localhost:${PORT}`);
+});
