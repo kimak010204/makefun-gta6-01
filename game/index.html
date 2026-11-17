@@ -1,69 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SOLMAR CITY — Make GTA 6</title>
+<title>SOLMAR CITY</title>
 <link rel="stylesheet" href="./style.css">
 <script type="importmap">
 {"imports":{"three":"./vendor/three.min.js"}}
 </script>
 </head>
 <body>
-<canvas id="scene"></canvas>
+<div id="app">
+  <canvas id="game"></canvas>
 
-<div id="hud" class="hidden">
-  <div id="topbar">
-    <div id="money">$0</div>
-    <div id="stars"></div>
-    <div id="clock">08:00</div>
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="top-left">
+      <div id="wanted"></div>
+      <div id="money">$0</div>
+      <div id="debt">Debt: $50,000</div>
+    </div>
+    <div id="top-right">
+      <div id="clock">08:00</div>
+      <div id="radio">♪ —</div>
+    </div>
+    <div id="objective"><span id="obj-title">SOLMAR CITY</span><span id="obj-text"></span></div>
+    <div id="bottom-left">
+      <div id="health-wrap"><div id="health-bar"></div><span id="health-text">100</span></div>
+      <div id="weapon">Pistol · ∞</div>
+      <div id="cash">Cash: $0 · CASH 0/12</div>
+    </div>
+    <div id="bottom-right">
+      <canvas id="minimap" width="180" height="180"></canvas>
+      <div id="speed">0 km/h</div>
+    </div>
+    <div id="hint"></div>
+    <div id="dialog" class="hidden"><span id="dialog-name"></span><span id="dialog-text"></span></div>
+    <div id="banner" class="hidden"></div>
+    <div id="job"> </div>
   </div>
-  <div id="radio">♪ SOLMAR FM — Night Drive</div>
-  <div id="cash">$0 · CASH 0/12</div>
-  <div id="health-wrap"><div id="health-bar"></div><span id="health-text">100</span></div>
-  <div id="weapon">PISTOL · ∞</div>
-  <div id="speedo">0 km/h</div>
-  <div id="upgrades"></div>
-  <div id="objective"></div>
-  <div id="job"></div>
-  <div id="banner"></div>
-  <div id="hint">WASD walk · E car · click shoot · N radio · M sound · Esc pause</div>
-  <canvas id="minimap" width="180" height="180"></canvas>
-  <div id="dialog" class="hidden"><div id="dialog-name"></div><div id="dialog-text"></div><div id="dialog-next">click / Enter to continue ▸</div></div>
-  <div id="shop" class="hidden"></div>
-</div>
 
-<div id="start">
-  <h1>SOLMAR CITY</h1>
-  <p class="tag">Port Solano — a beach city, a $50,000 debt, one last chance.</p>
-  <p class="story">Marco Reyes, ex-race driver, owes $50,000 to loan shark
-  <b>Vera Kross</b>. Six jobs. One city that never sleeps.
-  Pay off your debt — or this city collects it from you.</p>
-  <div class="controls">
-    <div><b>WASD</b> walk / drive</div><div><b>Shift</b> run</div>
-    <div><b>Space</b> jump / brake</div><div><b>E</b> enter / exit car</div>
-    <div><b>Click</b> shoot</div><div><b>R</b> reload</div>
-    <div><b>F</b> punch</div><div><b>B</b> garage · <b>G</b> gun shop</div>
-    <div><b>T</b> side jobs</div><div><b>N</b> radio · <b>M</b> sound · <b>Esc</b> pause</div>
+  <!-- Start screen -->
+  <div id="start-screen">
+    <h1>SOLMAR CITY</h1>
+    <p class="tagline">Port Solano — a beach city, a debt, and one last shot.</p>
+    <p class="story">Marco Reyes, a former race driver, owes <b>$50,000</b> to loan shark
+    <b>Vera Kross</b>. Six jobs. One city that never sleeps.
+    Pay off the debt — or the city will collect from you.</p>
+    <div class="controls">
+      <div><b>WASD</b> walk / drive</div>
+      <div><b>Shift</b> run &nbsp; <b>Space</b> jump / brake</div>
+      <div><b>E</b> enter / exit car &nbsp; <b>Click</b> shoot &nbsp; <b>R</b> reload</div>
+      <div><b>F</b> punch &nbsp; <b>B</b> garage &nbsp; <b>G</b> gun shop &nbsp; <b>T</b> side jobs</div>
+      <div><b>N</b> switch radio &nbsp; <b>M</b> sound &nbsp; <b>Esc</b> pause</div>
+    </div>
+    <button id="btn-new">New Game</button>
+    <button id="btn-continue" class="hidden">Continue</button>
+    <p class="foot">An original game — not GTA, not Rockstar. Built for make.fun.</p>
   </div>
-  <button id="btn-new">NEW GAME</button>
-  <button id="btn-continue" class="hidden">CONTINUE</button>
-  <p class="fine">An original 3D game. Not GTA, not Rockstar. All assets procedural, no downloads while playing.</p>
-</div>
 
-<div id="pause" class="hidden">
-  <h2>PAUSED</h2>
-  <p>Esc to resume · M sound · B garage (at Dex's garage) · G gun shop</p>
-  <button id="btn-resume">RESUME</button>
-  <button id="btn-quit">SAVE &amp; QUIT TO TITLE</button>
-</div>
+  <!-- Pause -->
+  <div id="pause-screen" class="hidden">
+    <h2>PAUSED</h2>
+    <p>Press Esc to continue.</p>
+    <p class="save-note">Progress saves automatically.</p>
+    <button id="btn-resume">Resume</button>
+    <button id="btn-quit">Back to Menu</button>
+  </div>
 
-<div id="over" class="hidden">
-  <h2 id="over-title">CAUGHT</h2>
-  <p id="over-text"></p>
-  <button id="btn-retry">GET BACK UP</button>
-</div>
+  <!-- Garage menu -->
+  <div id="garage" class="panel hidden">
+    <h2>Dex's Garage</h2>
+    <p id="garage-money"></p>
+    <div id="garage-items"></div>
+    <button class="close-panel">Close [B]</button>
+  </div>
 
+  <!-- Gun shop menu -->
+  <div id="gunshop" class="panel hidden">
+    <h2>Gun Shop</h2>
+    <p id="gunshop-money"></p>
+    <div id="gunshop-items"></div>
+    <button class="close-panel">Close [G]</button>
+  </div>
+
+  <!-- Side jobs menu -->
+  <div id="sidejobs" class="panel hidden">
+    <h2>Side Jobs</h2>
+    <p>Take a job, finish it, earn cash.</p>
+    <div id="sidejob-items"></div>
+    <button class="close-panel">Close [T]</button>
+  </div>
+
+  <!-- Busted / dead -->
+  <div id="busted" class="hidden"><h2 id="busted-title">CAUGHT</h2><p id="busted-text"></p></div>
+  <div id="toast"></div>
+</div>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>
