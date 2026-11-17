@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOLMAR CITY — Make GTA 6</title>
+<link rel="stylesheet" href="./style.css">
+<script type="importmap">
+{"imports":{"three":"./vendor/three.min.js"}}
+</script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div id="hud" class="hidden">
+  <div id="topbar">
+    <div id="money">$0</div>
+    <div id="stars"></div>
+    <div id="clock">08:00</div>
+  </div>
+  <div id="radio">♪ SOLMAR FM — Night Drive</div>
+  <div id="cash">$0 · CASH 0/12</div>
+  <div id="health-wrap"><div id="health-bar"></div><span id="health-text">100</span></div>
+  <div id="weapon">PISTOL · ∞</div>
+  <div id="speedo">0 km/h</div>
+  <div id="upgrades"></div>
+  <div id="objective"></div>
+  <div id="job"></div>
+  <div id="banner"></div>
+  <div id="hint">WASD walk · E car · click shoot · N radio · M sound · Esc pause</div>
+  <canvas id="minimap" width="180" height="180"></canvas>
+  <div id="dialog" class="hidden"><div id="dialog-name"></div><div id="dialog-text"></div><div id="dialog-next">click / Enter to continue ▸</div></div>
+  <div id="shop" class="hidden"></div>
+</div>
+
+<div id="start">
+  <h1>SOLMAR CITY</h1>
+  <p class="tag">Port Solano — a beach city, a $50,000 debt, one last chance.</p>
+  <p class="story">Marco Reyes, ex-race driver, owes $50,000 to loan shark
+  <b>Vera Kross</b>. Six jobs. One city that never sleeps.
+  Pay off your debt — or this city collects it from you.</p>
+  <div class="controls">
+    <div><b>WASD</b> walk / drive</div><div><b>Shift</b> run</div>
+    <div><b>Space</b> jump / brake</div><div><b>E</b> enter / exit car</div>
+    <div><b>Click</b> shoot</div><div><b>R</b> reload</div>
+    <div><b>F</b> punch</div><div><b>B</b> garage · <b>G</b> gun shop</div>
+    <div><b>T</b> side jobs</div><div><b>N</b> radio · <b>M</b> sound · <b>Esc</b> pause</div>
+  </div>
+  <button id="btn-new">NEW GAME</button>
+  <button id="btn-continue" class="hidden">CONTINUE</button>
+  <p class="fine">An original 3D game. Not GTA, not Rockstar. All assets procedural, no downloads while playing.</p>
+</div>
+
+<div id="pause" class="hidden">
+  <h2>PAUSED</h2>
+  <p>Esc to resume · M sound · B garage (at Dex's garage) · G gun shop</p>
+  <button id="btn-resume">RESUME</button>
+  <button id="btn-quit">SAVE &amp; QUIT TO TITLE</button>
+</div>
+
+<div id="over" class="hidden">
+  <h2 id="over-title">CAUGHT</h2>
+  <p id="over-text"></p>
+  <button id="btn-retry">GET BACK UP</button>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
