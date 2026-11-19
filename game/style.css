@@ -3,6 +3,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0e1a;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #fff; }
 #app { position: fixed; inset: 0; }
 #game { width: 100%; height: 100%; display: block; }
+/* soft vignette: cheap color-grade feel, darkens the frame edges only */
+#vignette { position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.24) 100%); }
 .hidden { display: none !important; }
 
 /* ---------- HUD ---------- */
