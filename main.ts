@@ -1,6 +1,7 @@
 // SOLMAR CITY — make.fun gta6-01 entrypoint.
 // Copies game/ and screenshots/ into the output dir, then writes dossier.json
 // with the bounty scorer's own buildDossier (vendor/makefun-game.ts).
+// v3 rebuild: same entrypoint, visuals upgraded (sky, lighting, effects).
 import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

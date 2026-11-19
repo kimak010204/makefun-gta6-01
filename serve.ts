@@ -1,5 +1,6 @@
 // SOLMAR CITY — tiny static server for local play.
 // Serves game/ at the root: open http://localhost:8080
+// v3 rebuild: unchanged server, visuals upgraded in game/src/main.js.
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { extname, join, normalize, resolve } from 'node:path';
